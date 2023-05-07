@@ -29,7 +29,6 @@
 	</div>
 
 	<div id="questions"></div>
-	<h2>Questions:</h2>		
 
 	<script>
 		// Handle form submission
@@ -57,7 +56,7 @@
 				html += '<label for="' + questionId + '">' + question + '</label><br>';
 	
 				var questionOptions = options[i];
-				for (var j = 0; j < questionOptions.length - 1; j++) {
+				for (var j = 0; j < questionOptions.length; j++) {
 				  var option = questionOptions[j];
 				  var optionId = questionId + '-option-' + j;
 	
@@ -77,9 +76,6 @@
 		  });
 		});
 	  </script>
-
-
-
 
 
 	<div class="team">
