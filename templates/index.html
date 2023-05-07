@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Create forms</title>
+	<link rel="stylesheet" href="/static/styles.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+	<div class="header">
+		<h2>Automated Form Generation using ChatGPT</h2>
+	</div>
+
+	<div class="form">
+		<form id="generate-form">
+			<label for="prompt">Enter your prompt:</label><br>
+			<textarea id="prompt" name="prompt" placeholder="Type here" rows="5" cols="50"></textarea><br><br>
+
+			<label for="select-type">Select a question type:</label>
+			<select id="select-type">
+				<option value="mcq">MCQ</option>
+				<option value="short-response">Short Response</option>
+				<option value="long-response">Long Response</option>
+			</select>
+
+			<input type="submit" value="Submit">
+		</form>
+	</div>
+
+	<div id="questions"></div>
+
+	<script>
+		// Handle form submission
+		$('#generate-form').submit(function (event) {
+			event.preventDefault();
+			var prompt = $('#prompt').val();
+			var selectInput = $('#select-type').val(); // Get the selected value from the select input
+			var conc = 0
+			if (selectInput == 'mcq') {
+				conc = 0;
+			} else if (selectInput == 'short-response') {
+				conc = 1;
+			} else {
+				conc = 2;
+			}
+			prompt = conc + '' + prompt;
+			// Clear previous outputs
+			$('#questions').empty();
+
+			// Display loading message
+			$('#questions').text('Generating questions...');
+
+			// Send POST request to Flask app
+			$.ajax({
+				url: '/generate',
+				method: 'POST',
+				contentType: 'application/json',
+				data: JSON.stringify({
+					prompt: prompt
+				}),
+				success: function (response) {
+					var questions = response.questions;
+					var options = response.options;
+
+					// Display the questions as HTML forms
+					var html = '';
+					for (var i = 0; i < questions.length; i++) {
+						var question = questions[i];
+						var questionId = 'question-' + i;
+
+						html += '<div class="question">';
+						html += '<label for="' + questionId + '">' + question + '</label><br>';
+
+						var questionOptions = options[i];
+						if (questionOptions && questionOptions.length > 0) {
+							for (var j = 0; j < questionOptions.length; j++) {
+								var option = questionOptions[j];
+								var optionId = questionId + '-option-' + j;
+
+								html += '<input type="radio" id="' + optionId + '" name="' + questionId +
+									'" value="' + option + '">';
+								html += '<label for="' + optionId + '">' + option + '</label><br>';
+							}
+						} else {
+							// Handle the case when no options are available
+							html += '<input type="text" id="' + questionId + '-option" name="' +
+								questionId + '-option" placeholder="Enter your answer">';
+							html += '<br>';
+						}
+						html += '<input type="submit" value="ADD TO FORM">';
+						html += '</div><br>';
+					}
+
+					$('#questions').empty().html(html);
+				},
+				error: function (xhr, status, error) {
+					console.error(xhr.responseText);
+					$('#questions').text('Error: ' + error);
+				}
+			});
+		});
+	</script>
+
+
+	<div class="team">
+		<hr>
+		<h2>Meet Our Team</h2>
+		<ul>
+			<li>Archit Jain</li>
+			<li>Deepank Shokeen</li>
+			<li>Vibhor Grover</li>
+			<li>Vansh Verma</li>
+			<li>Kapil Singh Baghel</li>
+		</ul>
+	</div>
+</body>
+
+</html>
